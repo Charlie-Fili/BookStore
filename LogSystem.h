@@ -1,0 +1,8 @@
+//
+// Created by ymy929 on 2022/12/21.
+//
+
+#ifndef INC_1_6BOOKSTORE_LOGSYSTEM_H
+#define INC_1_6BOOKSTORE_LOGSYSTEM_H
+
+#endif //INC_1_6BOOKSTORE_LOGSYSTEM_H

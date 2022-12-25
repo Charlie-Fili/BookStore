@@ -4,10 +4,10 @@
 #include <cstring>
 #include <vector>
 #include <list>
-#include "UnrolledLinkedList.h"
+#include "UnrolledLinkedList_double.h"
 
-template<typename index_type>
-BlockList<index_type>::BlockList(const std::string &fileName1, const std::string &fileName2) {
+template<typename index_type1, typename index_type2>
+double_BlockList<index_type1,index_type2>::double_BlockList(const std::string &fileName1, const std::string &fileName2) {
     filename_of_body = fileName1;
     filename_of_head = fileName2;
 
@@ -49,8 +49,8 @@ BlockList<index_type>::BlockList(const std::string &fileName1, const std::string
     }
 }
 
-template<typename index_type>
-BlockList<index_type>::~BlockList() {
+template<typename index_type1, typename index_type2>
+double_BlockList<index_type1,index_type2>::~double_BlockList() {
     store_of_head.seekp(0);
     int total = HeadList.size() + storage.size();
     int used = HeadList.size();
@@ -63,26 +63,26 @@ BlockList<index_type>::~BlockList() {
     store_of_body.close();
 }
 
-template<typename index_type>
-void BlockList<index_type>::readFile(Block &read_, const int &location) {
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::readFile(Block &read_, const int &location) {
     store_of_body.seekg(sizeof(Block) * location);
     store_of_body.read(reinterpret_cast<char *>(&read_), sizeof(Block));
 }
 
-template<typename index_type>
-void BlockList<index_type>::writeFile(Block &write_, const int &location) {
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::writeFile(Block &write_, const int &location) {
     store_of_body.seekp(sizeof(Block) * location);
     store_of_body.write(reinterpret_cast<char *>(&write_), sizeof(Block));
 }
 
-template<typename index_type>
-int BlockList<index_type>::find(Node &node_, typename std::list<HeadNode>::iterator &iter) { //找到节点插入数组的位置
+template<typename index_type1, typename index_type2>
+int double_BlockList<index_type1,index_type2>::find(Node &node_, typename std::list<HeadNode>::iterator &iter) { //找到节点插入数组的位置
     readFile(tmp_store, iter->tag);
     return std::lower_bound(tmp_store, tmp_store + iter->size, node_) - tmp_store;
 }
 
-template<typename index_type>
-int BlockList<index_type>::assign_tag() { // 给出一个可用tag
+template<typename index_type1, typename index_type2>
+int double_BlockList<index_type1,index_type2>::assign_tag() { // 给出一个可用tag
     if (storage.empty()) return HeadList.size();
     else {
         int tag_ = storage.back();
@@ -91,15 +91,15 @@ int BlockList<index_type>::assign_tag() { // 给出一个可用tag
     }
 }
 
-template<typename index_type>
-void BlockList<index_type>::restore_tag(int tag_) { // 回收一个可用tag
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::restore_tag(int tag_) { // 回收一个可用tag
     storage.push_back(tag_);
 }
 
 // 暂时未实现并块
 
-template<typename index_type>
-void BlockList<index_type>::insert(Node &node_, typename std::list<HeadNode>::iterator &iter) { // 将node插入数组中
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::insert(Node &node_, typename std::list<HeadNode>::iterator &iter) { // 将node插入数组中
     int location = find(node_, iter); // 位置
     readFile(tmp_store, iter->tag); // 数组
     if (node_ == tmp_store[location]) return; // 重复
@@ -118,8 +118,8 @@ void BlockList<index_type>::insert(Node &node_, typename std::list<HeadNode>::it
     else split(tmp_store, iter); // 裂块
 }
 
-template<typename index_type>
-void BlockList<index_type>::erase(Node &node_, typename std::list<HeadNode>::iterator &iter) { // 将node从数组中删除
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::erase(Node &node_, typename std::list<HeadNode>::iterator &iter) { // 将node从数组中删除
     if (iter->size == 1) { // 只有一个则清理并回收
         if (node_ != iter->bound) return;
         HeadList.erase(iter);
@@ -149,8 +149,8 @@ void BlockList<index_type>::erase(Node &node_, typename std::list<HeadNode>::ite
 //        else bind(node_, iter);
 }
 
-template<typename index_type>
-void BlockList<index_type>::split(Block &tmp_store1, typename std::list<HeadNode>::iterator iter) { // 裂块
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::split(Block &tmp_store1, typename std::list<HeadNode>::iterator iter) { // 裂块
     Block tmp_store2;
     for (auto i = minSize; i < BlockSize; ++i) {
         tmp_store2[i - minSize] = tmp_store1[i];
@@ -165,10 +165,10 @@ void BlockList<index_type>::split(Block &tmp_store1, typename std::list<HeadNode
     writeFile(tmp_store2, new_head.tag);
 }
 
-template<typename index_type>
-void BlockList<index_type>::insert(const index_type &index_, value_type value_) { // 找到插入对应的节点
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::insert(const index_type1 &index1_,const index_type2 &index2_, value_type value_) { // 找到插入对应的节点
 
-    Node tmp(index_, value_);
+    Node tmp(index1_,index2_, value_);
 
     if (HeadList.empty()) { // 第一个插入的节点
         tmp_store[0] = tmp;
@@ -189,9 +189,9 @@ void BlockList<index_type>::insert(const index_type &index_, value_type value_) 
     insert(tmp, --iter);
 }
 
-template<typename index_type>
-void BlockList<index_type>::erase(const index_type &index_, value_type value_) { // 找到删除对应的节点
-    Node tmp(index_, value_);
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::erase(const index_type1 &index1_,const index_type2 &index2_, value_type value_) { // 找到删除对应的节点
+    Node tmp(index1_,index2_, value_);
 
     auto iter = HeadList.begin();
 
@@ -204,12 +204,14 @@ void BlockList<index_type>::erase(const index_type &index_, value_type value_) {
     }
 }
 
-template<typename index_type>
-int BlockList<index_type>::search(const index_type &index_) { // 查询位置
-//    indexes.clear();
-    Node tmp(index_, -1);
+template<typename index_type1, typename index_type2>
+void double_BlockList<index_type1,index_type2>::search(const index_type1 &index_) { // 查询位置
+    indexes.clear();
+    index_type2 sub;
+    memset(sub,0, sizeof(sub));
+    Node tmp(index_,sub, -1);
     if (HeadList.empty()) {
-        return -1;
+        return;
     }
     auto iter = HeadList.begin();
     while (iter != HeadList.end()) {
@@ -218,49 +220,49 @@ int BlockList<index_type>::search(const index_type &index_) { // 查询位置
             readFile(tmp_store, iter->tag);
             bool flag = true;
             if (strcmp(index_, tmp_store[location].index) != 0) {
-                return -1;
+                return;
             } else {
-                return tmp_store[location].value; // 找到第一个后依次往后寻找
-//                while (location < iter->size) {
-//                    ++location;
-//                    if (location == iter->size) break;
-//                    if (strcmp(index_, tmp_store[location].index) == 0) {
-//                        indexes.push_back(tmp_store[location].value);
-//                    } else {
-//                        flag = false;
-//                        break;
-//                    }
-//                }
-//                while (flag and iter != HeadList.end()) {
-//                    ++iter;
-//                    if (iter != HeadList.end()) {
-//                        readFile(tmp_store, iter->tag);
-//                        location = -1;
-//                        while (location < iter->size) {
-//                            ++location;
-//                            if (location == iter->size) break;
-//                            if (strcmp(index_, tmp_store[location].index) == 0) {
-//                                indexes.push_back(tmp_store[location].value);
-//                            } else {
-//                                flag = false;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
+                indexes.push_back(tmp_store[location].value); // 找到第一个后依次往后寻找
+                while (location < iter->size) {
+                    ++location;
+                    if (location == iter->size) break;
+                    if (strcmp(index_, tmp_store[location].index) == 0) {
+                        indexes.push_back(tmp_store[location].value);
+                    } else {
+                        flag = false;
+                        break;
+                    }
+                }
+                while (flag and iter != HeadList.end()) {
+                    ++iter;
+                    if (iter != HeadList.end()) {
+                        readFile(tmp_store, iter->tag);
+                        location = -1;
+                        while (location < iter->size) {
+                            ++location;
+                            if (location == iter->size) break;
+                            if (strcmp(index_, tmp_store[location].index) == 0) {
+                                indexes.push_back(tmp_store[location].value);
+                            } else {
+                                flag = false;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
-//            return -1;
+            return;
         }
         ++iter;
     }
 //    return indexes;
-    return -1;
+//    return;
 }
 
 
 //int main() {
 //    std::ios::sync_with_stdio(false);
-//    BlockList<char[64]> ull("body", "head");
+//    double_BlockList<char[64]> ull("body", "head");
 //    int n;
 //    std::string instruct;
 //    char index[64];
