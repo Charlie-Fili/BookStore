@@ -2,7 +2,6 @@
 #include <fstream>
 #include <string>
 #include <cstring>
-#include <vector>
 #include <list>
 #include "UnrolledLinkedList.h"
 
@@ -206,7 +205,6 @@ void BlockList<index_type>::erase(const index_type &index_, value_type value_) {
 
 template<typename index_type>
 int BlockList<index_type>::search(const index_type &index_) { // 查询位置
-//    indexes.clear();
     Node tmp(index_, -1);
     if (HeadList.empty()) {
         return -1;
@@ -216,70 +214,13 @@ int BlockList<index_type>::search(const index_type &index_) { // 查询位置
         if (iter->bound >= tmp) {
             int location = find(tmp, iter);
             readFile(tmp_store, iter->tag);
-            bool flag = true;
             if (strcmp(index_, tmp_store[location].index) != 0) {
                 return -1;
             } else {
-                return tmp_store[location].value; // 找到第一个后依次往后寻找
-//                while (location < iter->size) {
-//                    ++location;
-//                    if (location == iter->size) break;
-//                    if (strcmp(index_, tmp_store[location].index) == 0) {
-//                        indexes.push_back(tmp_store[location].value);
-//                    } else {
-//                        flag = false;
-//                        break;
-//                    }
-//                }
-//                while (flag and iter != HeadList.end()) {
-//                    ++iter;
-//                    if (iter != HeadList.end()) {
-//                        readFile(tmp_store, iter->tag);
-//                        location = -1;
-//                        while (location < iter->size) {
-//                            ++location;
-//                            if (location == iter->size) break;
-//                            if (strcmp(index_, tmp_store[location].index) == 0) {
-//                                indexes.push_back(tmp_store[location].value);
-//                            } else {
-//                                flag = false;
-//                                break;
-//                            }
-//                        }
-//                    }
-//                }
+                return tmp_store[location].value;
             }
-//            return -1;
         }
         ++iter;
     }
-//    return indexes;
     return -1;
 }
-
-
-//int main() {
-//    std::ios::sync_with_stdio(false);
-//    BlockList<char[64]> ull("body", "head");
-//    int n;
-//    std::string instruct;
-//    char index[64];
-//    int value;
-//    std::cin >> n;
-//    while (n--) {
-//        memset(index, 0, sizeof(index));
-//        std::cin >> instruct >> index;
-//        if (instruct == "find") { // find
-//            ull.find(index);
-//            continue;
-//        }
-//        std::cin >> value;
-//        if (instruct == "insert") { // insert
-//            ull.insert(index, value);
-//        } else if (instruct == "delete") { // delete
-//            ull.erase(index, value);
-//        }
-//    }
-//    return 0;
-//}
-

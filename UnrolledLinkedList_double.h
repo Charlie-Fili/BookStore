@@ -16,9 +16,9 @@ template<typename index_type1, typename index_type2>
 class double_BlockList {
 public:
     using value_type = int;
-
     static const int BlockSize = 320; // sqrt of (100000)
-    static const int minSize = 160;
+    const int minSize = 160;
+
     struct Node { // 最小的一个节点
         index_type1 index1;
         index_type2 index2;
@@ -29,7 +29,7 @@ public:
             memset(index2, 0, sizeof(index2));
         };
 
-        Node(const index_type1 &index1_, index_type2 &index2_, const value_type &value_) {
+        Node(const index_type1 &index1_,const index_type2 &index2_, const value_type &value_) {
             memset(index1, 0, sizeof(index1));
             memset(index2, 0, sizeof(index2));
             strcpy(index1, index1_);
@@ -52,10 +52,8 @@ public:
                 if (strcmp(index1, rhs.index1) < 0) return true;
                 return false;
             }
-            if (strcmp(index2, rhs.index2) != 0) {
-                if (strcmp(index2, rhs.index2) < 0) return true;
-                return false;
-            }
+            if (strcmp(index2, rhs.index2) < 0) return true;
+            return false;
         }
 
         bool operator>(const Node &rhs) const {
@@ -130,11 +128,13 @@ public:
 
     void split(Block &tmp_store1, typename std::list<HeadNode>::iterator iter);
 
-    void insert(const index_type1 &index1_,const index_type2 &index2_, value_type value_);
+    void insert(const index_type1 &index1_, const index_type2 &index2_, value_type value_);
 
-    void erase(const index_type1 &index1_,const index_type2 &index2_, value_type value_);
+    void erase(const index_type1 &index1_, const index_type2 &index2_, value_type value_);
 
     void search(const index_type1 &index1_);
 };
+
+template class double_BlockList<char[61], char[21]>;
 
 #endif //INC_1_6BOOKSTORE_UNROLLEDLINKEDLIST_DOUBLE_H

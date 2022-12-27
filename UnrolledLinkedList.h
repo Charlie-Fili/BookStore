@@ -18,7 +18,7 @@ class BlockList {
 public:
     using value_type = int;
     static const int BlockSize = 320; // sqrt of (100000)
-    static const int minSize = 160;
+    const int minSize = 160;
 
     struct Node { // 最小的一个节点
         index_type index;
@@ -128,5 +128,8 @@ public:
 
     int search(const index_type &index_);
 };
+
+template class BlockList<char[21]>;
+template class BlockList<char[31]>;
 
 #endif //INC_1_6BOOKSTORE_UNROLLEDLINKEDLIST_H

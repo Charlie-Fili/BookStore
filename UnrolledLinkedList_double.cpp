@@ -140,7 +140,8 @@ void double_BlockList<index_type1,index_type2>::erase(Node &node_, typename std:
         for (auto i = location; i < iter->size - 1; ++i) {
             tmp_store[i] = tmp_store[i + 1];
         }
-        memset(tmp_store[iter->size - 1].index, 0, sizeof(tmp_store[iter->size - 1].index));
+        memset(tmp_store[iter->size - 1].index1, 0, sizeof(tmp_store[iter->size - 1].index1));
+        memset(tmp_store[iter->size - 1].index2, 0, sizeof(tmp_store[iter->size - 1].index2));
         tmp_store[iter->size - 1].value = -1;
     }
     --(iter->size);
@@ -219,14 +220,14 @@ void double_BlockList<index_type1,index_type2>::search(const index_type1 &index_
             int location = find(tmp, iter);
             readFile(tmp_store, iter->tag);
             bool flag = true;
-            if (strcmp(index_, tmp_store[location].index) != 0) {
+            if (strcmp(index_, tmp_store[location].index1) != 0) {
                 return;
             } else {
                 indexes.push_back(tmp_store[location].value); // 找到第一个后依次往后寻找
                 while (location < iter->size) {
                     ++location;
                     if (location == iter->size) break;
-                    if (strcmp(index_, tmp_store[location].index) == 0) {
+                    if (strcmp(index_, tmp_store[location].index1) == 0) {
                         indexes.push_back(tmp_store[location].value);
                     } else {
                         flag = false;
@@ -241,7 +242,7 @@ void double_BlockList<index_type1,index_type2>::search(const index_type1 &index_
                         while (location < iter->size) {
                             ++location;
                             if (location == iter->size) break;
-                            if (strcmp(index_, tmp_store[location].index) == 0) {
+                            if (strcmp(index_, tmp_store[location].index1) == 0) {
                                 indexes.push_back(tmp_store[location].value);
                             } else {
                                 flag = false;
@@ -255,33 +256,5 @@ void double_BlockList<index_type1,index_type2>::search(const index_type1 &index_
         }
         ++iter;
     }
-//    return indexes;
-//    return;
 }
-
-
-//int main() {
-//    std::ios::sync_with_stdio(false);
-//    double_BlockList<char[64]> ull("body", "head");
-//    int n;
-//    std::string instruct;
-//    char index[64];
-//    int value;
-//    std::cin >> n;
-//    while (n--) {
-//        memset(index, 0, sizeof(index));
-//        std::cin >> instruct >> index;
-//        if (instruct == "find") { // find
-//            ull.find(index);
-//            continue;
-//        }
-//        std::cin >> value;
-//        if (instruct == "insert") { // insert
-//            ull.insert(index, value);
-//        } else if (instruct == "delete") { // delete
-//            ull.erase(index, value);
-//        }
-//    }
-//    return 0;
-//}
 

@@ -59,14 +59,14 @@ void check_Type5(const std::string &check) {
             throw std::string("Invalid\n");
     }
 }
-
-void check_key(const std::string &check) {
-    if (check.length() > 60 || check.empty()) throw std::string("Invalid\n");
-    for (char i : check) {
-        if ((!isascii(i)) || (!isprint(i)) || i == '"' || i=='|')
-            throw std::string("Invalid\n");
-    }
-}
+//
+//void check_key(const std::string &check) {
+//    if (check.length() > 60 || check.empty()) throw std::string("Invalid\n");
+//    for (char i : check) {
+//        if ((!isascii(i)) || (!isprint(i)) || i == '"' and i!='|')
+//            throw std::string("Invalid\n");
+//    }
+//}
 
 //[Quantity]
 //合法字符集：数字；
@@ -99,10 +99,10 @@ void check_Type7(const std::string &check) {
 
 std::string check_assign_ISBN(const std::string &check){
     if(check[0]=='-'){
-        if(check.length()<8) throw std::string("Invalid\n");
-        std::string tmp=check.substr(1,6);
-        if(tmp!="ISBN=\"" || check[check.size()-1]!='\"') throw std::string("Invalid\n");
-        tmp=check.substr(7,check.length()-8);
+        if(check.length()<7) throw std::string("Invalid\n");
+        std::string tmp=check.substr(1,5);
+        if(tmp!="ISBN=") throw std::string("Invalid\n");
+        tmp=check.substr(6,check.length()-6);
         check_Type4(tmp);
         return tmp;
     }else throw std::string("Invalid\n");
@@ -129,13 +129,13 @@ std::string check_assign(const std::string &check){
             std::string tmp=check.substr(1,9);
             if(tmp!="keyword=\"" || check[check.size()-1]!='\"') throw std::string("Invalid\n");
             tmp=check.substr(10,check.length()-11);
-            check_key(tmp);
+            check_Type5(tmp);
             return tmp;
         }else if(check[1]=='p'){
-            if(check.length()<9) throw std::string("Invalid\n");
-            std::string tmp=check.substr(1,7);
-            if(tmp!="price=\"" || check[check.size()-1]!='\"') throw std::string("Invalid\n");
-            tmp=check.substr(8,check.length()-9);
+            if(check.length()<8) throw std::string("Invalid\n");
+            std::string tmp=check.substr(1,6);
+            if(tmp!="price=") throw std::string("Invalid\n");
+            tmp=check.substr(7,check.length()-7);
             check_Type7(tmp);
             return tmp;
         }else throw std::string("Invalid\n");
