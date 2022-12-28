@@ -256,7 +256,7 @@ public:
                 std::string temp = tmp.substr(1, 9);
                 if (temp != "keyword=\"" || tmp[tmp.size() - 1] != '\"') throw std::string("Invalid\n");
                 temp = tmp.substr(10, tmp.length() - 11);
-                check_Type5(temp);
+                check_key(temp);
                 strcpy(Keyword_, temp.c_str());
 
                 TokenScanner scanner_key(temp);
@@ -277,10 +277,12 @@ public:
                 if (tmp[1] == 'n') {
                     if (used[1]) throw std::string("Invalid\n");
                     used[1] = true;
+                    memset(BookName_, 0, sizeof(BookName_));
                     strcpy(BookName_, type);
                 } else if (tmp[1] == 'a') {
                     if (used[2]) throw std::string("Invalid\n");
                     used[2] = true;
+                    memset(Author_, 0, sizeof(Author_));
                     strcpy(Author_, type);
                 } else if (tmp[1] == 'p') {
                     if (used[4]) throw std::string("Invalid\n");

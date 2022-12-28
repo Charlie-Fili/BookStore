@@ -59,14 +59,16 @@ void check_Type5(const std::string &check) {
             throw std::string("Invalid\n");
     }
 }
-//
-//void check_key(const std::string &check) {
-//    if (check.length() > 60 || check.empty()) throw std::string("Invalid\n");
-//    for (char i : check) {
-//        if ((!isascii(i)) || (!isprint(i)) || i == '"' and i!='|')
-//            throw std::string("Invalid\n");
-//    }
-//}
+
+void check_key(const std::string &check) {
+    if (check.length() > 60 || check.empty()) throw std::string("Invalid\n");
+    if (check[0] == '|' or check[check.length() - 1] == '|') throw std::string("Invalid\n");
+    for (int i = 0; i < check.length(); ++i) {
+        if ((!isascii(check[i])) || (!isprint(check[i])) || check[i] == '"')
+            throw std::string("Invalid\n");
+        if (check[i] == '|' && check[i + 1] == '|') throw std::string("Invalid\n");
+    }
+}
 
 //[Quantity]
 //合法字符集：数字；
@@ -91,7 +93,7 @@ void check_Type7(const std::string &check) {
     if (check.length() > 13 || check.empty()) throw std::string("Invalid\n");
     if (check[0] == '0' and check.length() > 1 and check[1] != '.') throw std::string("Invalid\n");
     int num = 0;
-    int point;
+    int point = -1;
     for (int i = 0; i < check.length(); ++i) {
         if ((!isdigit(check[i])) && check[i] != '.')
             throw std::string("Invalid\n");
