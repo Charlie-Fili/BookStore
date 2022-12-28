@@ -229,8 +229,6 @@ public:
         int index_ = account.User_select.top();
         Book tmp;
         readFile(tmp, index_);
-        int index = ISBN_map.search(ISBN_);
-        if (index != -1) throw std::string("Invalid\n");
         ISBN_map.erase(tmp.ISBN, tmp.tag);
         strcpy(tmp.ISBN, ISBN_);
         writeFile(tmp, index_);

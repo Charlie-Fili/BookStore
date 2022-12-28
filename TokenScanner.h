@@ -194,7 +194,7 @@ public:
         }
     }
 
-    void buy(AccountSystem &account_, BookSystem &book_,LogSystem &log_) {
+    void buy(AccountSystem &account_, BookSystem &book_, LogSystem &log_) {
         std::string tmp = nextToken();
         check_Type4(tmp);
         char ISBN_[21];
@@ -203,9 +203,9 @@ public:
 
         tmp = nextToken();
         int Quantity_ = check_Type6(tmp);
-        double cost=0.0;
-        book_.buy(ISBN_, Quantity_, account_,cost);
-        log_.AddFinance(true,cost);
+        double cost = 0.0;
+        book_.buy(ISBN_, Quantity_, account_, cost);
+        log_.AddFinance(true, cost);
     }
 
     void select(AccountSystem &account_, BookSystem &book_) {
@@ -222,72 +222,53 @@ public:
     void modify(AccountSystem &account_, BookSystem &book_) {
         if (account_.login_stack.top().Privilege < '3') throw std::string("Invalid\n");
 //        int index_=account_.User_select[account_.User_select.size() - 1];
-        int index_=account_.User_select.top();
+        int index_ = account_.User_select.top();
         if (index_ == -1) throw std::string("Invalid\n");
         if (!hasMore) throw std::string("Invalid\n");
         std::string tmp = nextToken();
         bool used[5];
-        memset(used,false,sizeof(used));
+        char ISBN_[21];
+        char BookName_[61];
+        char Author_[61];
+        char Keyword_[61];
+        double Price_ = 0.0;
+        std::unordered_map<std::string, bool> hasKey;
+        std::vector<std::string> Key_store;
+
+        memset(used, false, sizeof(used));
+        hasKey.clear();
+        Key_store.clear();
         while (!tmp.empty()) {
             if (tmp.length() < 6) throw std::string("Invalid\n");
             if (tmp[1] == 'I') {
                 if (used[0]) throw std::string("Invalid\n");
-                char ISBN_[21];
+
                 memset(ISBN_, 0, sizeof(ISBN_));
                 strcpy(ISBN_, check_assign_ISBN(tmp).c_str());
+                int index = book_.ISBN_map.search(ISBN_);
+                if (index != -1) throw std::string("Invalid\n");
 
                 used[0] = true;
-
-                book_.ISBN_modify(ISBN_, account_);
             } else if (tmp[1] == 'k') {
                 if (used[3]) throw std::string("Invalid\n");
-                char Keyword_[61];
                 memset(Keyword_, 0, sizeof(Keyword_));
-                if(tmp.length()<11) throw std::string("Invalid\n");
-                std::string temp=tmp.substr(1,9);
-                if(temp!="keyword=\"" || tmp[tmp.size()-1]!='\"') throw std::string("Invalid\n");
-                temp=tmp.substr(10,tmp.length()-11);
+                if (tmp.length() < 11) throw std::string("Invalid\n");
+                std::string temp = tmp.substr(1, 9);
+                if (temp != "keyword=\"" || tmp[tmp.size() - 1] != '\"') throw std::string("Invalid\n");
+                temp = tmp.substr(10, tmp.length() - 11);
                 check_Type5(temp);
-                strcpy(Keyword_,temp.c_str());
-                used[3] = true;
+                strcpy(Keyword_, temp.c_str());
 
                 TokenScanner scanner_key(temp);
-                std::string key=scanner_key.nextKey();
-                std::unordered_map<std::string,bool> hasKey;
-                std::vector<std::string> Key_store;
-                while(!key.empty()){
-                    if(hasKey.count(key)) throw std::string("Invalid\n");
-                    hasKey[key]=true;
+                std::string key = scanner_key.nextKey();
+                while (!key.empty()) {
+                    if (hasKey.count(key)) throw std::string("Invalid\n");
+                    hasKey[key] = true;
                     Key_store.push_back(key);
-                    key=scanner_key.nextKey();
+                    key = scanner_key.nextKey();
                 }
 
-                Book tmp_;
-                book_.Book_inf.seekg(sizeof(Book) * index_ + sizeof(int));
-                book_.Book_inf.read(reinterpret_cast<char *>(&tmp_), sizeof(Book));
-
-                char empty[61];
-                memset(empty, 0, sizeof(empty));
-                if (strcmp(empty, tmp_.Keyword) != 0) {
-                    TokenScanner scanner_key_(tmp_.Keyword);
-                    std::string key_=scanner_key_.nextKey();
-                    while(!key_.empty()){
-                        char key_c[61];
-                        strcpy(key_c,key_.c_str());
-                        book_.Keyword_map.erase(key_c, tmp_.ISBN, tmp_.tag);
-                        key_=scanner_key_.nextKey();
-                    }
-                }
-
-                strcpy(tmp_.Keyword, Keyword_);
-                book_.Book_inf.seekp(sizeof(Book) * index_ + sizeof(int));
-                book_.Book_inf.write(reinterpret_cast<char *>(&tmp_), sizeof(Book));
-
-                for(auto &iter:Key_store){
-                    char key_c[61];
-                    strcpy(key_c,iter.c_str());
-                    book_.Keyword_map.insert(key_c, tmp_.ISBN, tmp_.tag);
-                }
+                used[3] = true;
             } else {
                 char type[61];
                 memset(type, 0, sizeof(type));
@@ -295,29 +276,59 @@ public:
 
                 if (tmp[1] == 'n') {
                     if (used[1]) throw std::string("Invalid\n");
-                    used[1]=true;
-                    book_.BookName_modify(type, account_);
+                    used[1] = true;
+                    strcpy(BookName_, type);
                 } else if (tmp[1] == 'a') {
                     if (used[2]) throw std::string("Invalid\n");
-                    used[2]=true;
-                    book_.Author_modify(type, account_);
+                    used[2] = true;
+                    strcpy(Author_, type);
                 } else if (tmp[1] == 'p') {
                     if (used[4]) throw std::string("Invalid\n");
-                    used[4]=true;
-                    book_.Price_modify(atof(type), account_);
+                    used[4] = true;
+                    Price_ = atof(type);
                 } else throw std::string("Invalid\n");
             }
-//            tmp = nextToken();
-//            if(tmp!="|" and !tmp.empty()) throw std::string("Invalid\n");
             tmp = nextToken();
+        }
+
+        if (used[0]) book_.ISBN_modify(ISBN_, account_);
+        if (used[1]) book_.BookName_modify(BookName_, account_);
+        if (used[2]) book_.Author_modify(Author_, account_);
+        if (used[4]) book_.Price_modify(Price_, account_);
+        if (used[3]) {
+            Book tmp_;
+            book_.Book_inf.seekg(sizeof(Book) * index_ + sizeof(int));
+            book_.Book_inf.read(reinterpret_cast<char *>(&tmp_), sizeof(Book));
+
+            char empty[61];
+            memset(empty, 0, sizeof(empty));
+            if (strcmp(empty, tmp_.Keyword) != 0) {
+                TokenScanner scanner_key_(tmp_.Keyword);
+                std::string key_ = scanner_key_.nextKey();
+                while (!key_.empty()) {
+                    char key_c[61];
+                    strcpy(key_c, key_.c_str());
+                    book_.Keyword_map.erase(key_c, tmp_.ISBN, tmp_.tag);
+                    key_ = scanner_key_.nextKey();
+                }
+            }
+
+            strcpy(tmp_.Keyword, Keyword_);
+            book_.Book_inf.seekp(sizeof(Book) * index_ + sizeof(int));
+            book_.Book_inf.write(reinterpret_cast<char *>(&tmp_), sizeof(Book));
+
+            for (auto &iter: Key_store) {
+                char key_c[61];
+                strcpy(key_c, iter.c_str());
+                book_.Keyword_map.insert(key_c, tmp_.ISBN, tmp_.tag);
+            }
         }
     }
 
-
-    void import(AccountSystem &account_, BookSystem &book_,LogSystem &log_ ){
+    void import(AccountSystem &account_, BookSystem &book_, LogSystem &log_) {
         if (account_.login_stack.top().Privilege < '3') throw std::string("Invalid\n");
 //        int index_=account_.User_select[account_.User_select.size() - 1];
-        int index_=account_.User_select.top();
+        int index_ = account_.User_select.top();
         if (index_ == -1) throw std::string("Invalid\n");
 
         std::string tmp = nextToken();
@@ -327,14 +338,14 @@ public:
         check_Type7(tmp);
         double TotalCost_ = atof(tmp.c_str());
 
-        book_.import(Quantity_,TotalCost_,account_);
-        log_.AddFinance(false,TotalCost_);
+        book_.import(Quantity_, TotalCost_, account_);
+        log_.AddFinance(false, TotalCost_);
     }
 
-    void show_finance(AccountSystem &account_,LogSystem &log_) {
+    void show_finance(AccountSystem &account_, LogSystem &log_) {
         if (account_.login_stack.top().Privilege < '7') throw std::string("Invalid\n");
         std::string tmp = nextToken();
-        if(tmp.empty()){
+        if (tmp.empty()) {
             log_.ShowFinance(-1);
             return;
         }
