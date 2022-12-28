@@ -282,7 +282,7 @@ public:
     }
 
     void import(const int &Quantity_, const double &TotalCost_, AccountSystem &account) {
-        if (Quantity_ <= 0 || TotalCost_ < 0) throw std::string("Invalid\n");
+        if (Quantity_ <= 0 || TotalCost_ <= 0) throw std::string("Invalid\n");
         int index_ = account.User_select.top();
         Book tmp;
         readFile(tmp, index_);

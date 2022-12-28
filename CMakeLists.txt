@@ -12,4 +12,5 @@ add_executable(code
         AccountSystem.h
         BookSystem.h
         LogSystem.h
-        TokenScanner.h check.h)
+        TokenScanner.h
+        check.h)
