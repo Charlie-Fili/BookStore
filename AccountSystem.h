@@ -105,7 +105,7 @@ public:
         User_inf.write(reinterpret_cast<char *>(&write_), sizeof(User));
     }
 
-    void login(const char (&UserID_)[31], const char (&Password_)[31]) { //登录
+    void login(const char (&UserID_)[31], const char (&Password_)[31],const bool &ifOmit) { //登录
         int index_ = user_map.search(UserID_);
         if (index_ == -1) throw std::string("Invalid\n");
 
@@ -121,7 +121,7 @@ public:
             User tmp(login_stack.top());
             User record;
             readFile(record, index_);
-            if (tmp.Privilege > record.Privilege) {
+            if (tmp.Privilege > record.Privilege and ifOmit) {
                 login_stack.push(record);
                 User_select.push(-1);
             } else {
@@ -155,7 +155,7 @@ public:
         ++amount;
     }
 
-    void passwd(const char (&UserID_)[31], const char (&CurrentPassword_)[31], const char (&NewPassword_)[31]) {
+    void passwd(const char (&UserID_)[31], const char (&CurrentPassword_)[31], const char (&NewPassword_)[31],const bool &ifOmit) {
         if (login_stack.empty()) throw std::string("Invalid\n");
         else {
             int index_ = user_map.search(UserID_);
@@ -163,7 +163,7 @@ public:
             User tmp(login_stack.top());
             User record;
             readFile(record, index_);
-            if (tmp.Privilege == '7') {
+            if (tmp.Privilege == '7' and ifOmit) {
                 strcpy(record.Password, NewPassword_);
                 writeFile(record, index_);
             } else {

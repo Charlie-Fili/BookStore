@@ -47,6 +47,7 @@ public:
     }
 
     void su(AccountSystem &account_) {
+        bool ifOmit=false;
         std::string tmp = nextToken();
         check_Type1(tmp);
         char UserID_[31];
@@ -59,11 +60,11 @@ public:
         if (!tmp.empty()) {
             check_Type1(tmp);
             strcpy(Password_, tmp.c_str());
-        }
+        }else ifOmit=true;
 
         if (hasMore) throw std::string("Invalid\n");
 
-        account_.login(UserID_, Password_);
+        account_.login(UserID_, Password_,ifOmit);
     }
 
     void register_(AccountSystem &account_) {
@@ -91,6 +92,7 @@ public:
     }
 
     void passwd(AccountSystem &account_) {
+        bool ifOmit=false;
         std::string tmp = nextToken();
         check_Type1(tmp);
         char UserID_[31];
@@ -104,6 +106,7 @@ public:
         char NewPassword_[31];
         memset(NewPassword_, 0, sizeof(NewPassword_));
         if (tmp1.empty()) {
+            ifOmit=true;
             check_Type1(tmp);
             strcpy(NewPassword_, tmp.c_str());
         } else {
@@ -115,7 +118,7 @@ public:
 
         if (hasMore) throw std::string("Invalid\n");
 
-        account_.passwd(UserID_, CurrentPassword_, NewPassword_);
+        account_.passwd(UserID_, CurrentPassword_, NewPassword_,ifOmit);
     }
 
     void useradd(AccountSystem &account_) {
