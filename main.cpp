@@ -20,44 +20,44 @@ int main() {
                 if (!scanner.hasMore) break;
                 else throw std::string("Invalid\n");
             } else if (order == "su") {
-                scanner.su(accountSystem);
+                scanner.su(accountSystem, logSystem);
             } else if (order == "logout") {
-                if (!scanner.hasMore) accountSystem.logout();
+                if (!scanner.hasMore) scanner.logout(accountSystem, logSystem);
                 else throw std::string("Invalid\n");
             } else if (order == "register") {
-                scanner.register_(accountSystem);
+                scanner.register_(accountSystem, logSystem);
             } else if (order == "passwd") {
-                scanner.passwd(accountSystem);
+                scanner.passwd(accountSystem, logSystem);
             } else if (order == "useradd") {
-                scanner.useradd(accountSystem);
+                scanner.useradd(accountSystem, logSystem);
             } else if (order == "delete") {
-                scanner.delete_(accountSystem);
+                scanner.delete_(accountSystem, logSystem);
             } else if (order == "buy") {
                 if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
                 scanner.buy(accountSystem, bookSystem, logSystem);
             } else if (order == "select") {
                 if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
-                scanner.select(accountSystem, bookSystem);
+                scanner.select(accountSystem, bookSystem, logSystem);
             } else if (order == "modify") {
                 if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
-                scanner.modify(accountSystem, bookSystem);
+                scanner.modify(accountSystem, bookSystem, logSystem);
             } else if (order == "import") {
                 if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
                 scanner.import(accountSystem, bookSystem, logSystem);
             } else if (order == "log") {
                 if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
-
+                logSystem.showLog();
             } else if (order == "show") {
                 int point_ = scanner.point;
                 order = scanner.nextToken();
-                if (order == "finance") {
+                if (order == "finance") { // show finance
                     if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
                     scanner.show_finance(accountSystem, logSystem);
-                } else {
+                } else { // show in bookSystem
                     scanner.point = point_;
                     scanner.hasMore = true;
                     if (accountSystem.login_stack.empty()) throw std::string("Invalid\n");
-                    scanner.show(accountSystem, bookSystem);
+                    scanner.show(accountSystem, bookSystem, logSystem);
                 }
             } else {
                 throw std::string("Invalid\n");
@@ -67,5 +67,4 @@ int main() {
             std::cout << error_out;
         }
     }
-
 }
