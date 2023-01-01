@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <cstring>
-//#include "AccountSystem.h"
 #include "LogSystem.h"
 #include "check.h"
 
@@ -20,7 +19,7 @@ public:
         tokens = s;
     }
 
-    std::string nextToken() {
+    std::string nextToken() { // 空格分隔下一个字段
         while (tokens[point] == ' ' and point != tokens.length()) ++point;
         if (point == tokens.length()) return "";
         int begin = point;
@@ -34,7 +33,7 @@ public:
         return tmp;
     }
 
-    std::string nextKey() {
+    std::string nextKey() { // |分隔下一个key
         int begin = point;
         int end = point;
         while (tokens[end] != '|' and end != tokens.length()) ++end;
@@ -46,8 +45,13 @@ public:
         return tmp;
     }
 
-    void su(AccountSystem &account_, LogSystem &log_) {
-        bool ifOmit = false;
+    /*
+    * accountSystem
+    */
+
+    void su(AccountSystem &account_, LogSystem &log_) { // 登录账户
+        bool ifOmit = false; // 是否有省密码
+
         std::string tmp = nextToken();
         check_Type1(tmp);
         char UserID_[31];
@@ -65,6 +69,7 @@ public:
         if (hasMore) throw std::string("Invalid\n");
 
         account_.login(UserID_, Password_, ifOmit);
+
         int index_ = account_.user_map.search(UserID_);
         User record;
         account_.readFile(record, index_);
@@ -73,6 +78,7 @@ public:
 
     void logout(AccountSystem &account_, LogSystem &log_) {
         log_.AddLog0(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 1);
+
         account_.logout();
     }
 
@@ -98,11 +104,13 @@ public:
         if (hasMore) throw std::string("Invalid\n");
 
         account_.register_(UserID_, Password_, Username_);
+
         log_.AddLog0('1', UserID_, 2);
     }
 
     void passwd(AccountSystem &account_, LogSystem &log_) {
-        bool ifOmit = false;
+        bool ifOmit = false; // 是否有省密码
+
         std::string tmp = nextToken();
         check_Type1(tmp);
         char UserID_[31];
@@ -129,6 +137,7 @@ public:
         if (hasMore) throw std::string("Invalid\n");
 
         account_.passwd(UserID_, CurrentPassword_, NewPassword_, ifOmit);
+
         int index_ = account_.user_map.search(UserID_);
         User record;
         account_.readFile(record, index_);
@@ -162,6 +171,7 @@ public:
         if (hasMore) throw std::string("Invalid\n");
 
         account_.useradd(UserID_, Password_, Privilege_, Username_);
+
         log_.AddLog1(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 4, Privilege_,
                      UserID_);
     }
@@ -180,11 +190,12 @@ public:
         account_.readFile(record, index_);
         log_.AddLog1(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 10, record.Privilege,
                      record.UserID);
+
         account_.delete_(UserID_);
     }
 
     /*
-     * book system
+     * bookSystem
      */
 
     void show(AccountSystem &account_, BookSystem &book_, LogSystem &log_) {
@@ -195,6 +206,7 @@ public:
             return;
         }
         if (tmp.length() < 6) throw std::string("Invalid\n");
+
         if (tmp[1] == 'I') {
             char ISBN_[21];
             memset(ISBN_, 0, sizeof(ISBN_));
@@ -218,6 +230,7 @@ public:
                 book_.Keyword_show(type, account_);
             } else throw std::string("Invalid\n");
         }
+
         log_.AddLog2(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 6, tmp.c_str());
     }
 
@@ -231,14 +244,18 @@ public:
         tmp = nextToken();
         int Quantity_ = check_Type6(tmp);
         double cost = 0.0;
+
         book_.buy(ISBN_, Quantity_, account_, cost);
+
         log_.AddFinance(true, cost);
+
         log_.AddLog3(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 7, ISBN_, Quantity_,
                      cost);
     }
 
     void select(AccountSystem &account_, BookSystem &book_, LogSystem &log_) {
         if (account_.login_stack.top().Privilege < '3') throw std::string("Invalid\n");
+
         std::string tmp = nextToken();
         check_Type4(tmp);
         char ISBN_[21];
@@ -246,15 +263,16 @@ public:
         strcpy(ISBN_, tmp.c_str());
 
         book_.select(ISBN_, account_);
+
         log_.AddLog4(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 8, ISBN_);
     }
 
     void modify(AccountSystem &account_, BookSystem &book_, LogSystem &log_) {
         if (account_.login_stack.top().Privilege < '3') throw std::string("Invalid\n");
-//        int index_=account_.User_select[account_.User_select.size() - 1];
         int index_ = account_.User_select.top();
         if (index_ == -1) throw std::string("Invalid\n");
         if (!hasMore) throw std::string("Invalid\n");
+
         std::string tmp = nextToken();
         bool used[5];
         char ISBN_[21];
@@ -264,8 +282,8 @@ public:
         double Price_ = 0.0;
         std::string Price;
         std::string Key;
-        std::unordered_map<std::string, bool> hasKey;
-        std::vector<std::string> Key_store;
+        std::unordered_map<std::string, bool> hasKey; // 是否修改过
+        std::vector<std::string> Key_store; // 先存起来，保证没错误再改变
 
         memset(used, false, sizeof(used));
         hasKey.clear();
@@ -283,6 +301,7 @@ public:
                 used[0] = true;
             } else if (tmp[1] == 'k') {
                 if (used[3]) throw std::string("Invalid\n");
+
                 memset(Keyword_, 0, sizeof(Keyword_));
                 if (tmp.length() < 11) throw std::string("Invalid\n");
                 std::string temp = tmp.substr(1, 9);
@@ -292,6 +311,7 @@ public:
                 strcpy(Keyword_, temp.c_str());
                 Key=temp;
 
+                // 拆分keyword
                 TokenScanner scanner_key(temp);
                 std::string key = scanner_key.nextKey();
                 while (!key.empty()) {
@@ -327,6 +347,7 @@ public:
             tmp = nextToken();
         }
 
+        // 检验没有语法问题后统一进行变换
         Book tmpBook;
         book_.readFile(tmpBook, index_);
 
@@ -358,6 +379,7 @@ public:
             book_.Book_inf.seekg(sizeof(Book) * index_ + sizeof(int));
             book_.Book_inf.read(reinterpret_cast<char *>(&tmp_), sizeof(Book));
 
+            // 删除原来的key
             char empty[61];
             memset(empty, 0, sizeof(empty));
             if (strcmp(empty, tmp_.Keyword) != 0) {
@@ -375,6 +397,7 @@ public:
             book_.Book_inf.seekp(sizeof(Book) * index_ + sizeof(int));
             book_.Book_inf.write(reinterpret_cast<char *>(&tmp_), sizeof(Book));
 
+            // 一个个插入新key
             for (auto &iter: Key_store) {
                 char key_c[61];
                 strcpy(key_c, iter.c_str());
@@ -387,7 +410,7 @@ public:
 
     void import(AccountSystem &account_, BookSystem &book_, LogSystem &log_) {
         if (account_.login_stack.top().Privilege < '3') throw std::string("Invalid\n");
-//        int index_=account_.User_select[account_.User_select.size() - 1];
+
         int index_ = account_.User_select.top();
         if (index_ == -1) throw std::string("Invalid\n");
 
@@ -399,7 +422,9 @@ public:
         double TotalCost_ = atof(tmp.c_str());
 
         book_.import(Quantity_, TotalCost_, account_);
+
         log_.AddFinance(false, TotalCost_);
+
         Book tmpBook;
         book_.readFile(tmpBook, index_);
         log_.AddLog3(account_.login_stack.top().Privilege, account_.login_stack.top().UserID, 7, tmpBook.ISBN, Quantity_,
@@ -416,11 +441,6 @@ public:
         int Quantity_ = check_Type6(tmp);
         log_.ShowFinance(Quantity_);
     }
-
-//    void log(AccountSystem &account_, BookSystem &book_) {
-//        if (account_.login_stack.top().Privilege < '7') throw std::string("Invalid\n");
-//
-//    }
 
 };
 

@@ -9,10 +9,6 @@
 #include <vector>
 #include <list>
 
-//template<typename index_type, typename value_type>
-//using index_type = char[64];
-
-
 template<typename index_type>
 class BlockList {
 public:
@@ -96,7 +92,6 @@ public:
     std::string filename_of_head;
 
     Block tmp_store;
-//    std::vector<int> indexes;
 
     BlockList() = default;
 

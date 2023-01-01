@@ -105,7 +105,7 @@ public:
         User_inf.write(reinterpret_cast<char *>(&write_), sizeof(User));
     }
 
-    void login(const char (&UserID_)[31], const char (&Password_)[31],const bool &ifOmit) { //登录
+    void login(const char (&UserID_)[31], const char (&Password_)[31], const bool &ifOmit) { //登录账户
         int index_ = user_map.search(UserID_);
         if (index_ == -1) throw std::string("Invalid\n");
 
@@ -133,10 +133,9 @@ public:
             if (if_login.count(UserID_)) ++if_login[UserID_];
             else if_login[UserID_] = 1;
         }
-
     }
 
-    void logout() {
+    void logout() { // 注销账户
         if (login_stack.empty()) throw std::string("Invalid\n");
         else {
             if (if_login[login_stack.top().UserID] > 1) --if_login[login_stack.top().UserID];
@@ -146,7 +145,7 @@ public:
         }
     }
 
-    void register_(const char (&UserID_)[31], const char (&Password_)[31], const char (&Username_)[31]) { //注册
+    void register_(const char (&UserID_)[31], const char (&Password_)[31], const char (&Username_)[31]) { //注册账户
         int index_ = user_map.search(UserID_);
         if (index_ != -1) throw std::string("Invalid\n");
         user_map.insert(UserID_, amount);
@@ -155,7 +154,8 @@ public:
         ++amount;
     }
 
-    void passwd(const char (&UserID_)[31], const char (&CurrentPassword_)[31], const char (&NewPassword_)[31],const bool &ifOmit) {
+    void passwd(const char (&UserID_)[31], const char (&CurrentPassword_)[31], const char (&NewPassword_)[31],
+                const bool &ifOmit) { // 修改密码
         if (login_stack.empty()) throw std::string("Invalid\n");
         else {
             int index_ = user_map.search(UserID_);
@@ -176,7 +176,7 @@ public:
     }
 
     void useradd(const char (&UserID_)[31], const char (&Password_)[31], const char &Privilege_,
-                 const char (&Username_)[31]) {
+                 const char (&Username_)[31]) { // 创建账户
         if (login_stack.empty()) throw std::string("Invalid\n");
         else {
             User tmp(login_stack.top());
@@ -193,7 +193,7 @@ public:
         }
     }
 
-    void delete_(const char (&UserID_)[31]) {
+    void delete_(const char (&UserID_)[31]) { // 删除账户
         if (login_stack.empty()) throw std::string("Invalid\n");
         else {
             User tmp(login_stack.top());

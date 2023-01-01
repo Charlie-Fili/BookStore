@@ -7,7 +7,6 @@
 
 #include "BookSystem.h"
 
-
 struct Log_finance {
     bool if_earn;
     double value;
@@ -24,7 +23,7 @@ struct Log {
     char privilege1 = ' ';
     char account[31];
     int behaviour;
-//  Login, Logout, Register, Passwd, Useradd, Delete, Show, Buy, Select, Modify, Import
+//从0到10分别为 Login, Logout, Register, Passwd, Useradd, Delete, Show, Buy, Select, Modify, Import
     char privilege2 = ' ';
     char acceptor[31];
     char ISBN[21];
@@ -34,7 +33,7 @@ struct Log {
 
     Log() = default;
 
-    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_) {
+    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_) { // Login, Logout, Register
         privilege1 = privilege1_;
         memset(account, 0, sizeof(account));
         strcpy(account, account_);
@@ -45,7 +44,7 @@ struct Log {
     }
 
     Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char &privilege2_,
-        const char (&acceptor_)[31]) {
+        const char (&acceptor_)[31]) { // Passwd, Useradd, Delete
         privilege1 = privilege1_;
         memset(account, 0, sizeof(account));
         strcpy(account, account_);
@@ -57,7 +56,7 @@ struct Log {
         memset(show, 0, sizeof(show));
     }
 
-    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const std::string &show_) {
+    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const std::string &show_) { // Show
         privilege1 = privilege1_;
         memset(account, 0, sizeof(account));
         strcpy(account, account_);
@@ -69,7 +68,7 @@ struct Log {
     }
 
     Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21],
-        const int &num_, const double &amount_) {
+        const int &num_, const double &amount_) { // Buy, Import
         privilege1 = privilege1_;
         memset(account, 0, sizeof(account));
         strcpy(account, account_);
@@ -81,7 +80,7 @@ struct Log {
         amount = amount_;
     }
 
-    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21]) {
+    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21]) { // Select
         privilege1 = privilege1_;
         memset(account, 0, sizeof(account));
         strcpy(account, account_);
@@ -93,7 +92,7 @@ struct Log {
 
 
     Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21],
-        const std::string &show_) {
+        const std::string &show_) { // Modify
         privilege1 = privilege1_;
         memset(account, 0, sizeof(account));
         strcpy(account, account_);
@@ -104,23 +103,6 @@ struct Log {
         memset(show, 0, sizeof(show));
         strcpy(show, show_.c_str());
     }
-    //    Log(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char &privilege2_,
-//        const char (&acceptor_)[31], const char (&ISBN_)[21], const std::string &show_,
-//        const int &num_, const double &amount_) {
-//        privilege1 = privilege1_;
-//        memset(account, 0, sizeof(account));
-//        strcpy(account, account_);
-//        behaviour = behavior_;
-//        privilege2 = privilege2_;
-//        memset(acceptor, 0, sizeof(acceptor));
-//        strcpy(acceptor, acceptor_);
-//        memset(ISBN, 0, sizeof(ISBN));
-//        strcpy(ISBN, ISBN_);
-//        memset(show, 0, sizeof(show));
-//        strcpy(show, show_.c_str());
-//        num = num_;
-//        amount = amount_;
-//    }
 
 };
 
@@ -215,52 +197,44 @@ public:
         log.write(reinterpret_cast<char *>(&write_), sizeof(Log));
     }
 
-    void AddLog0(const char &privilege1_, const char (&account_)[31], const int &behavior_) {
+    void AddLog0(const char &privilege1_, const char (&account_)[31], const int &behavior_) { // Login, Logout, Register
         Log tmp(privilege1_, account_, behavior_);
         writeLog(tmp, amount);
         ++amount;
     }
 
     void AddLog1(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char &privilege2_,
-                 const char (&acceptor_)[31]) {
+                 const char (&acceptor_)[31]) { //  Passwd, Useradd, Delete
         Log tmp(privilege1_, account_, behavior_, privilege2_, acceptor_);
         writeLog(tmp, amount);
         ++amount;
     }
 
-    void AddLog2(const char &privilege1_, const char (&account_)[31], const int &behavior_, const std::string &show_) {
+    void AddLog2(const char &privilege1_, const char (&account_)[31], const int &behavior_, const std::string &show_) { // Show
         Log tmp(privilege1_, account_, behavior_, show_);
         writeLog(tmp, amount);
         ++amount;
     }
 
     void AddLog3(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21],
-                 const int &num_, const double &amount_) {
+                 const int &num_, const double &amount_) { // Buy, Import
         Log tmp(privilege1_, account_, behavior_, ISBN_, num_, amount_);
         writeLog(tmp, amount);
         ++amount;
     }
 
-    void AddLog4(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21]) {
+    void AddLog4(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21]) { //  Select
         Log tmp(privilege1_, account_, behavior_, ISBN_);
         writeLog(tmp, amount);
         ++amount;
     }
 
     void AddLog5(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char (&ISBN_)[21],
-                 const std::string &show_) {
+                 const std::string &show_) { // Modify
         Log tmp(privilege1_, account_, behavior_, ISBN_, show_);
         writeLog(tmp, amount);
         ++amount;
     }
-//    void AddLog0(const char &privilege1_, const char (&account_)[31], const int &behavior_, const char &privilege2_,
-//                 const char (&acceptor_)[31], const char (&ISBN_)[21], const char (&bookName_)[61],
-//                 const std::string &show_,
-//                 const int &num_, const double &amount_) {
-//        Log tmp(privilege1_, account_, behavior_, privilege2_, acceptor_, ISBN_, bookName_, show_, num_, amount_);
-//        writeLog(tmp, amount);
-//        ++amount;
-//    }
 
     void showLog() {
         if (amount == 0) throw std::string("Invalid\n");
@@ -268,7 +242,7 @@ public:
             Log tmp;
             readLog(tmp, i);
             int operation = tmp.behaviour;
-            //  Login, Logout, Register, Passwd, Useradd, Delete, Show, Buy, Select, Modify, Import
+            //从0到10分别为 Login, Logout, Register, Passwd, Useradd, Delete, Show, Buy, Select, Modify, Import
             if (operation == 0) {
                 showPrivilege(tmp.privilege1 - '0');
                 std::cout << tmp.account << '\t' << "\033[32mLogin\n";

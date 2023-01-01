@@ -108,7 +108,7 @@ public:
         Book_inf.write(reinterpret_cast<char *>(&write_), sizeof(Book));
     }
 
-    void show(AccountSystem &account) {
+    void show(AccountSystem &account) { // 检索所有图书
         for (auto &iter: ISBN_map.HeadList) {
             BlockList<char[21]>::Block tmp_;
             ISBN_map.readFile(tmp_, iter.tag);
@@ -123,7 +123,7 @@ public:
         }
     }
 
-    void ISBN_show(const char (&ISBN_)[21], AccountSystem &account) {
+    void ISBN_show(const char (&ISBN_)[21], AccountSystem &account) { // 检索图书
         int index_ = ISBN_map.search(ISBN_);
         if (index_ == -1) {
             std::cout << '\n';
@@ -192,7 +192,7 @@ public:
         }
     }
 
-    void buy(const char (&ISBN_)[21], const int &Quantity_, AccountSystem &account, double &cost) {
+    void buy(const char (&ISBN_)[21], const int &Quantity_, AccountSystem &account, double &cost) { // 购买图书
         if (Quantity_ <= 0) throw std::string("Invalid\n");
         int index_ = ISBN_map.search(ISBN_);
         if (index_ == -1) throw std::string("Invalid\n");
@@ -208,7 +208,7 @@ public:
         }
     }
 
-    void select(const char (&ISBN_)[21], AccountSystem &account) {
+    void select(const char (&ISBN_)[21], AccountSystem &account) { // 选择图书
         int index_ = ISBN_map.search(ISBN_);
         if (index_ == -1) {
             ISBN_map.insert(ISBN_, amount);
@@ -225,7 +225,7 @@ public:
         }
     }
 
-    void ISBN_modify(const char (&ISBN_)[21], AccountSystem &account) {
+    void ISBN_modify(const char (&ISBN_)[21], AccountSystem &account) { // 修改图书信息
         int index_ = account.User_select.top();
         Book tmp;
         readFile(tmp, index_);
@@ -259,18 +259,6 @@ public:
         Author_map.insert(tmp.Author, tmp.ISBN, tmp.tag);
     }
 
-//    void Keyword_modify(const char (Keyword_)[61], AccountSystem &account) {
-//        int index_ = account.User_select.top();
-//            Book tmp;
-//            readFile(tmp, index_);
-//            char empty[61];
-//            memset(empty, 0, sizeof(empty));
-//            if (strcmp(empty, tmp.Keyword) != 0) Keyword_map.erase(tmp.Keyword, tmp.ISBN, tmp.tag);
-//            strcpy(tmp.Keyword, Keyword_);
-//            writeFile(tmp, index_);
-//            Keyword_map.insert(tmp.Keyword, tmp.ISBN, tmp.tag);
-//    }
-
     void Price_modify(const double &Price_, AccountSystem &account) {
         int index_ = account.User_select.top();
         Book tmp;
@@ -279,7 +267,7 @@ public:
         writeFile(tmp, index_);
     }
 
-    void import(const int &Quantity_, const double &TotalCost_, AccountSystem &account) {
+    void import(const int &Quantity_, const double &TotalCost_, AccountSystem &account) { // 图书进货
         if (Quantity_ <= 0 || TotalCost_ <= 0) throw std::string("Invalid\n");
         int index_ = account.User_select.top();
         Book tmp;

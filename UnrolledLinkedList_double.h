@@ -8,10 +8,6 @@
 #include <vector>
 #include <list>
 
-//template<typename index_type, typename value_type>
-//using index_type = char[64];
-
-
 template<typename index_type1, typename index_type2>
 class double_BlockList {
 public:

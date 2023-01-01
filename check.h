@@ -60,6 +60,7 @@ void check_Type5(const std::string &check) {
     }
 }
 
+//专门检验多个并排Keyword的格式
 void check_key(const std::string &check) {
     if (check.length() > 60 || check.empty()) throw std::string("Invalid\n");
     if (check[0] == '|' or check[check.length() - 1] == '|') throw std::string("Invalid\n");
@@ -106,6 +107,7 @@ void check_Type7(const std::string &check) {
     if (point == 0 or point == check.length() - 1) throw std::string("Invalid\n");
 }
 
+// 专门检验show和modify中ISBN的格式
 std::string check_assign_ISBN(const std::string &check) {
     if (check[0] == '-') {
         if (check.length() < 7) throw std::string("Invalid\n");
@@ -117,6 +119,7 @@ std::string check_assign_ISBN(const std::string &check) {
     } else throw std::string("Invalid\n");
 }
 
+// 专门检验show和modify中ISBN之外的格式
 std::string check_assign(const std::string &check) {
     if (check[0] == '-') {
         if (check[1] == 'n') {
