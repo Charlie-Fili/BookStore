@@ -9,19 +9,20 @@
 ##  主体逻辑说明
 
 - 较大需求为管理账号、图书信息和日志记录，创建三个类AccountSystem、BookSystem和LogSystem辅助处理
-- 交互方式利用token scanner逐行读入分析
+- 交互方式利用类似token scanner的方法逐行读入分析
 - 
   ### 指令操作
 - 基础指令-直接执行
 - 账户系统指令
 	- 存储顾客所有信息（UserID、Password、Username、Privilege）
-	- 用类和派生类来体现不同权限
-	- 存储从UserID对应到相应信息的索引（可以使用比如unordered_map或块状链表)
+	- 用类和派生类来体现不同权限 *(写代码过程中发现派生类很累赘，于是决定舍弃派生类)*
+	- 存储从UserID对应到相应信息的索引（使用块状链表 tag->UserID)
 	- 用栈记录登录账号
 	- 记录选择的书
 - 图书系统指令
-	- 存储图书所有信息（ISBN、BookName、Author、Keyword、stock、Price)
-	- 存储从ISBN对应到相应信息的索引以及从BookName、Author、Keyword对应到ISBN的链表（可以使用比如unordered_map或块状链表)
+	- 存储图书所有信息（ISBN、BookName、Author、Keyword、Quantity、Price、TotalCost)
+	- 存储从ISBN对应到相应信息的索引（使用块状链表 tag->ISBN)
+    - 存储从BookName、Author、Keyword对应到ISBN的链表(这里采用了双键块状链表，tag->(,ISBN))
 - 日志系统指令
 	- 记录交易、收支
 	- 日志文件
@@ -30,101 +31,163 @@
 ## 代码文件结构
 
 ### main.cpp
-- include下面所有类
+```
+  #include <iostream>
+  #include <unordered_map>
+  #include "TokenScanner.h"
+```
 - 读取指令
-- 检测合法性
+```
+  AccountSystem accountSystem;
+  BookSystem bookSystem;
+  LogSystem logSystem;
+```
+### TokenScanner.h
+//切片，参考StanfordCPP
+```
+#include <iostream>
+#include <string>
+#include <cstring>
+#include "LogSystem.h"
+#include "check.h"
+```
 - 切片并调用相应类与函数
+```
+class TokenScanner{
+	std::string nextToken();
+	std::string nextKey();
+	void su(AccountSystem &account_, LogSystem &log_);
+	void logout(AccountSystem &account_, LogSystem &log_);
+	void register_(AccountSystem &account_, LogSystem &log_);
+	void passwd(AccountSystem &account_, LogSystem &log_);
+	void useradd(AccountSystem &account_, LogSystem &log_);
+	void delete_(AccountSystem &account_, LogSystem &log_);
+	void show(AccountSystem &account_, BookSystem &book_, LogSystem &log_);
+	void buy(AccountSystem &account_, BookSystem &book_, LogSystem &log_);
+	void select(AccountSystem &account_, BookSystem &book_, LogSystem &log_);
+	void modify(AccountSystem &account_, BookSystem &book_, LogSystem &log_);
+	void show_finance(AccountSystem &account_, LogSystem &log_);
+}
+```
+
 ### AccountSystem.h
-	(此处及以下省略iostream及fstream等库)
-    #include <vector>
-    #include <stack>
-    #include "LogSystem.h"
-    #include "BookSystem.h"
-    
-
-- class tourist{
-	- 构建函数不设变量
-	- void register（string UserID,string Pass,string Username）；//注册
-	- void login（string UserID, string Password）；//登录
-	- virtual int priority;
- }
-- class customer：public tourist{
-	-  void login（string UserID, string Password）；
-	 - void logout（）；
-	 - void passwd（string UserID，String CurrentPassword，String NewPassword）
-	 - virtual int priority;
-- }
-- class employee：public customer{
-	-  void login（string UserID, string Password）；//登录 注意判断是否为顾客类型变量
-	- void useradd（string UserID,string Pass,string Username）；//注意判断是否为顾客类型变量
-	- virtual int priority;
-- }
-- class owner: public employee{
-	-  void login（string UserID）；//登录
-	- void passwd（string UserID，String NewPassword）
-	- void useradd（string UserID,string Pass,string Username）；
-	- void delete（string UserID）；
-	- void logPring();
-	- virtual int priority;
-- }
-
-  -  struct information{
-	   string Password
-	   string Username
-	   string Privilege
-   }
-- unordered_map<string,information> user;
-- struct log_account {
-	  string ID
-	  int selected_ISDN;
-	};
-- std::stack<log_account>log_
-
-- // other class or variables
+```
+#include <iostream>
+#include <string>
+#include <cstring>
+#include "LogSystem.h"
+#include "check.h"
+```
+- 细化登录、登出、注册、修改密码、删除的函数
+```
+class User {
+public:
+    int tag = -1;
+    char UserID[31];
+    char Password[31];
+    char Username[31];
+    char Privilege;
+}
+class AccountSystem {
+public:
+    BlockList<char[31]> user_map;
+    std::fstream User_inf;
+    std::string filename_ = "User_inf";
+    std::stack<User> login_stack;
+    std::stack<int> User_select;
+    std::unordered_map<std::string, int> if_login;
+    int amount = 0;
+    ……细化函数
+}
+```
 
 ### BookSystem.h
-    #include <vector>
-    #include "LogSystem.h"
-   
-- class book{
-	- string ISBN
-	- string BookName
-	- string Author
-	- string Keyword
-	- int stock
-	- double Price
-- }
-- unordered_map<string,book> book_ISDN;
--  unordered_map<string,book> book_name;
-- unordered_map<string,book> book_author;
-- unordered_map<string,book> book_keyword;
-- class bookmanagement{
-	- void show (-ISBN=[ISBN] | -name="[BookName]" | -author="[Author]" | -keyword="[Keyword]")?
-	 - void buy（string ISBN,int Quantity）；
-	 - void select (string ISBN,AccountSystem);// 判断权限
-	 - void modify (-ISBN=[ISBN] | -name="[BookName]" | -author="[Author]" | -keyword="[Keyword]" | -price=[Price])+;
-	 -  import [Quantity] [TotalCost];
-	
-- } 
+```
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <stack>
+#include <iomanip>
+#include "AccountSystem.h"
+#include "UnrolledLinkedList_double.h"
+```
+- 细化检索、购买、选择、修改、进货的函数
+```
+class Book {
+public:
+    int tag;
+    char ISBN[21];
+    char BookName[61];
+    char Author[61];
+    char Keyword[61];
+    int Quantity = 0;
+    double Price = 0.0;
+    double TotalCost = 0.0;
+}
+class BookSystem {
+public:
+    BlockList<char[21]> ISBN_map;
+    double_BlockList<char[61], char[21]> BookName_map;
+    double_BlockList<char[61], char[21]> Author_map;
+    double_BlockList<char[61], char[21]> Keyword_map;
+    std::fstream Book_inf;
+    std::string filename_ = "Book_inf";
+    int amount = 0;
+    ……细化函数
+}
+```
 
 ### LogSystem.h{
-  # include "BookSystem.h"
-  # include "AccountSystem.h"
-  void record(); // 记录用户干了什么
-  void trade(); // 记录每一笔收入
-  void show finance ([Count])；// 财务记录查询
-  void log(); // 输出日志
+```
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include "BookSystem.h"
+```
+- 细化登录、登出、注册、修改密码、删除的函数
+```
+struct Log_finance {
+    bool if_earn;
+    double value;
+};
+struct Log {
+    char privilege1 = ' ';
+    char account[31];
+    int behaviour;
+//从0到10分别为 Login, Logout, Register, Passwd, Useradd, Delete, Show, Buy, Select, Modify, Import
+    char privilege2 = ' ';
+    char acceptor[31];
+    char ISBN[21];
+    char show[71];
+    int num = 0;
+    double amount = 0.0;
 }
-### error.h 
-//负责报错
+class LogSystem {
+public:
+    std::fstream log_finance;
+    std::string filename1_ = "log_finance";
+    int finance_amount = 0;
+    std::fstream log;
+    std::string filename2_ = "log";
+    int amount = 0;
+    ……细化函数
+}
+```
 ### chech.h 
-//用于检查输入是否合法
-### TokenScanner.h 
-//切片，参考StanfordCPP
+- 用于检查输入是否合法
+
 
 
 ## 文件存储说明
-- 专门为日志分出文件存储
+- 存储账户信息 User_inf
+- 存储书本信息 Book_inf
+- 存储财务记录 log_finance
+- 存储日志信息 log
+- 存储从UserID对应到相应信息的索引 UserIdHead UserIdBody 
+- 存储从ISBN对应到相应信息的索引 ISBNHead ISBNBody
+- 存储从BookName和ISBN到相应信息的索引 BookNameHead BookNameBody
+- 存储从Author和ISBN到相应信息的索引 AuthorHead AuthorBody
+- 存储从Keyword和ISBN到相应信息的索引 KeywordHead KeywordBody
 
 ## 其他补充说明
 - 暂时无
